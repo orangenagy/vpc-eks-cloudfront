@@ -51,7 +51,7 @@ variable "api_allowed_cidrs" {
 
   validation {
     condition     = length(var.api_allowed_cidrs) > 0 && !contains(var.api_allowed_cidrs, "0.0.0.0/0")
-    error_message = "Set at least one CIDR, and don't use 0.0.0.0/0."
+    error_message = "Set api_allowed_cidrs in terraform.tfvars to your IP, e.g. [\"1.2.3.4/32\"] (find it with: curl https://checkip.amazonaws.com). 0.0.0.0/0 is not allowed."
   }
 }
 

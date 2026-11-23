@@ -2,9 +2,8 @@
 # Find your current IP with: curl https://checkip.amazonaws.com
 
 # Who can reach the EKS API from the internet (kubectl, terraform)
-api_allowed_cidrs = [
-  "203.0.113.10/32",
-]
+# Left empty on purpose: plan/apply fail until you add your IP, e.g. "1.2.3.4/32"
+api_allowed_cidrs = []
 
 # Regular EKS with a managed node group instead of Auto Mode
 eks_auto_mode = false

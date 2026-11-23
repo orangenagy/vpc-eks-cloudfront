@@ -1,0 +1,19 @@
+# Same pod as nitro-sandbox-test.yaml but on the normal runtime (runc), pinned
+# to the default x86 node group, to compare against the sandbox:
+#   kubectl exec normal-test -- sh -c 'grep MemTotal /proc/meminfo; cat /proc/uptime; uname -r'
+# Expect the node's full RAM, the node's uptime and the node's exact kernel.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: normal-test
+spec:
+  nodeSelector:
+    kubernetes.io/arch: amd64 # the t3.small default node; the sandbox node is arm64
+  containers:
+    - name: main
+      image: public.ecr.aws/amazonlinux/amazonlinux:2023
+      command: ["sleep", "infinity"]
+      resources:
+        limits:
+          cpu: "1"
+          memory: 512Mi # same limit as sandbox-test
