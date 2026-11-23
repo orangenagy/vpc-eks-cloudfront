@@ -37,7 +37,7 @@ make build \
   aws_region="$REGION" \
   instance_type="$INSTANCE_TYPE"
 
-ami_id="$(jq -r '.builds[-1].artifact_id' ./*manifest.json | cut -d: -f2)"
+ami_id="$(jq -r '.builds[-1].artifact_id' ./*manifest.json | cut -d: -f2 | sort -u | head -n1)"
 echo
 echo "Built AMI: $ami_id"
 echo "Add to terraform.tfvars:  sandbox_ami_id = \"$ami_id\""
