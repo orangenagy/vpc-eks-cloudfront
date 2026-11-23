@@ -17,3 +17,7 @@ node_instance_types = ["t3.small"]
 node_capacity_type  = "ON_DEMAND"
 node_min_size       = 1
 node_desired_size   = 1
+
+# Nitro Sandbox node group (m6g.large, arm64). Build the AMI with
+# ami/build-sandbox-ami.sh, then paste its ID here. Empty = no sandbox nodes.
+sandbox_ami_id = ""

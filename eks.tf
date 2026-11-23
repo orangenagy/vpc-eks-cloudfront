@@ -54,7 +54,8 @@ module "eks" {
     coredns = {}
   }
 
-  eks_managed_node_groups = var.eks_auto_mode ? {} : {
+  # Regular mode only. "sandbox" is added once sandbox_ami_id is set.
+  eks_managed_node_groups = { for k, v in {
     default = {
       ami_type       = "AL2023_x86_64_STANDARD"
       instance_types = var.node_instance_types
@@ -64,7 +65,24 @@ module "eks" {
       max_size     = var.node_max_size
       desired_size = var.node_desired_size
     }
-  }
+
+    # Nitro Sandboxes: custom AMI (ami/build-sandbox-ami.sh) with Nitro Enclaves on.
+    # The AMI labels its nodes eks.amazonaws.com/nitro-sandbox=true itself.
+    sandbox = {
+      ami_id                     = var.sandbox_ami_id
+      ami_type                   = "AL2023_ARM_64_STANDARD" # tells the module to write nodeadm user data
+      enable_bootstrap_user_data = true                     # custom AMIs need the cluster details passed in
+      instance_types             = [var.sandbox_instance_type]
+
+      enclave_options = {
+        enabled = true
+      }
+
+      min_size     = 0
+      max_size     = 1
+      desired_size = var.sandbox_node_desired_size
+    }
+  } : k => v if !var.eks_auto_mode && (k != "sandbox" || var.sandbox_ami_id != "") }
 
   vpc_id     = module.vpc.vpc_id
   subnet_ids = var.public_subnets_only ? module.vpc.public_subnets : module.vpc.private_subnets
