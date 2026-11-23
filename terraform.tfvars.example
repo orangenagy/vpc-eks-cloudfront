@@ -12,6 +12,8 @@ eks_auto_mode = false
 # Nodes in public subnets with public IPs; no NAT gateways or VPC endpoints
 public_subnets_only = true
 
-# Managed node group sizing (only used when eks_auto_mode = false)
-# node_instance_types = ["t3.medium"]
-# node_desired_size   = 2
+# Managed node group (only used when eks_auto_mode = false)
+node_instance_types = ["t3.small"]
+node_capacity_type  = "ON_DEMAND"
+node_min_size       = 1
+node_desired_size   = 1

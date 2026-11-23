@@ -5,15 +5,38 @@ variable "eks_auto_mode" {
 }
 
 variable "node_instance_types" {
-  description = "Instance types for the managed node group (regular mode only)"
+  description = "Instance types for the managed node group (regular mode only)."
   type        = list(string)
-  default     = ["t3.medium"]
+  default     = ["t3.small"]
+}
+
+variable "node_capacity_type" {
+  description = "ON_DEMAND or SPOT for the managed node group (regular mode only). Spot is ~60-70% cheaper but nodes can be reclaimed."
+  type        = string
+  default     = "ON_DEMAND"
+
+  validation {
+    condition     = contains(["ON_DEMAND", "SPOT"], var.node_capacity_type)
+    error_message = "Must be ON_DEMAND or SPOT."
+  }
+}
+
+variable "node_min_size" {
+  description = "Minimum node count for the managed node group"
+  type        = number
+  default     = 1
+}
+
+variable "node_max_size" {
+  description = "Maximum node count for the managed node group"
+  type        = number
+  default     = 3
 }
 
 variable "node_desired_size" {
-  description = "Desired node count for the managed node group (regular mode only)"
+  description = "Node count at creation. Keep >= 1 so CoreDNS can start; Terraform ignores later changes, scale with the AWS CLI instead."
   type        = number
-  default     = 2
+  default     = 1
 }
 
 variable "public_subnets_only" {
