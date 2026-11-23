@@ -54,3 +54,21 @@ variable "api_allowed_cidrs" {
     error_message = "Set at least one CIDR, and don't use 0.0.0.0/0."
   }
 }
+
+variable "sandbox_ami_id" {
+  description = "Nitro Sandbox AMI from ami/build-sandbox-ami.sh. Empty = no sandbox node group (regular mode only)."
+  type        = string
+  default     = ""
+}
+
+variable "sandbox_instance_type" {
+  description = "Instance type for the sandbox node group. Must support Nitro Sandboxes and match the AMI's arch (arm64)."
+  type        = string
+  default     = "m6g.large"
+}
+
+variable "sandbox_node_desired_size" {
+  description = "Sandbox node count at creation (min 0, max 1). Terraform ignores later changes."
+  type        = number
+  default     = 1
+}
