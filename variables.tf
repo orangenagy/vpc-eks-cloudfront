@@ -1,0 +1,56 @@
+variable "eks_auto_mode" {
+  description = "true = EKS Auto Mode (AWS manages nodes). false = regular EKS with a managed node group. Pick before creating the cluster; switching an existing cluster isn't clean."
+  type        = bool
+  default     = true
+}
+
+variable "node_instance_types" {
+  description = "Instance types for the managed node group (regular mode only)."
+  type        = list(string)
+  default     = ["t3.small"]
+}
+
+variable "node_capacity_type" {
+  description = "ON_DEMAND or SPOT for the managed node group (regular mode only). Spot is ~60-70% cheaper but nodes can be reclaimed."
+  type        = string
+  default     = "ON_DEMAND"
+
+  validation {
+    condition     = contains(["ON_DEMAND", "SPOT"], var.node_capacity_type)
+    error_message = "Must be ON_DEMAND or SPOT."
+  }
+}
+
+variable "node_min_size" {
+  description = "Minimum node count for the managed node group"
+  type        = number
+  default     = 1
+}
+
+variable "node_max_size" {
+  description = "Maximum node count for the managed node group"
+  type        = number
+  default     = 3
+}
+
+variable "node_desired_size" {
+  description = "Node count at creation. Keep >= 1 so CoreDNS can start; Terraform ignores later changes, scale with the AWS CLI instead."
+  type        = number
+  default     = 1
+}
+
+variable "public_subnets_only" {
+  description = "Cheap mode: run the cluster and nodes in the public subnets (nodes get public IPs) and skip the NAT gateways and VPC endpoints"
+  type        = bool
+  default     = false
+}
+
+variable "api_allowed_cidrs" {
+  description = "CIDRs allowed to reach the public EKS API endpoint, e.g. [\"1.2.3.4/32\"]. Nodes use the private endpoint so don't need to be listed."
+  type        = list(string)
+
+  validation {
+    condition     = length(var.api_allowed_cidrs) > 0 && !contains(var.api_allowed_cidrs, "0.0.0.0/0")
+    error_message = "Set at least one CIDR, and don't use 0.0.0.0/0."
+  }
+}

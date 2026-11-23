@@ -8,7 +8,10 @@ kind: Service
 metadata:
   name: nginx
   annotations:
-    alb.ingress.kubernetes.io/scheme: internal
+    # Auto Mode / AWS Load Balancer Controller
+    service.beta.kubernetes.io/aws-load-balancer-scheme: internal
+    # Built-in AWS cloud provider (regular EKS without the LB controller)
+    service.beta.kubernetes.io/aws-load-balancer-internal: "true"
 spec:
   type: LoadBalancer
   ports:
