@@ -10,8 +10,28 @@ module "eks" {
   endpoint_private_access      = true # nodes reach the API privately
   endpoint_public_access_cidrs = var.api_allowed_cidrs
 
+  # Access entries only; the legacy aws-auth ConfigMap is ignored.
+  # Note: API_AND_CONFIG_MAP -> API is one-way on an existing cluster.
+  authentication_mode = "API"
+
   # Optional: Adds the current caller identity as an administrator via cluster access entry
   enable_cluster_creator_admin_permissions = true
+
+  # Extra cluster admins (kubectl and the EKS console)
+  access_entries = {
+    ritesh = {
+      principal_arn = "arn:aws:iam::486326947233:user/ritesh"
+
+      policy_associations = {
+        admin = {
+          policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+          access_scope = {
+            type = "cluster"
+          }
+        }
+      }
+    }
+  }
 
   # Auto Mode: AWS runs the nodes, networking, storage and LB controllers for you
   compute_config = var.eks_auto_mode ? {
