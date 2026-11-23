@@ -12,13 +12,19 @@ module "vpc" {
   private_subnets = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
   public_subnets  = ["10.0.101.0/24", "10.0.102.0/24", "10.0.103.0/24"]
 
-  enable_nat_gateway   = true
-  enable_dns_hostnames = true
-  enable_vpn_gateway   = false
+  # No NAT needed when nodes sit in public subnets with public IPs
+  enable_nat_gateway      = !var.public_subnets_only
+  map_public_ip_on_launch = var.public_subnets_only
+  enable_dns_hostnames    = true
+  enable_vpn_gateway      = false
 
   tags = {
     Terraform   = "true"
     Environment = "dev"
+  }
+
+  public_subnet_tags = {
+    "kubernetes.io/role/elb" = "1"
   }
 
   private_subnet_tags = {
@@ -26,7 +32,20 @@ module "vpc" {
   }
 }
 
+# Endpoint policies replace AWS's default allow-all, so an explicit Allow is
+# required; the Deny then blocks any use from outside this VPC.
 data "aws_iam_policy_document" "generic_endpoint_policy" {
+  statement {
+    effect    = "Allow"
+    actions   = ["*"]
+    resources = ["*"]
+
+    principals {
+      type        = "*"
+      identifiers = ["*"]
+    }
+  }
+
   statement {
     effect    = "Deny"
     actions   = ["*"]
@@ -48,6 +67,9 @@ data "aws_iam_policy_document" "generic_endpoint_policy" {
 
 module "endpoints" {
   source = "terraform-aws-modules/vpc/aws//modules/vpc-endpoints"
+
+  # Nodes reach AWS APIs over the internet gateway in public-only mode
+  create = !var.public_subnets_only
 
   vpc_id = module.vpc.vpc_id
 

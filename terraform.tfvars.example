@@ -1,0 +1,17 @@
+# Loaded automatically by terraform plan/apply.
+# Find your current IP with: curl https://checkip.amazonaws.com
+
+# Who can reach the EKS API from the internet (kubectl, terraform)
+api_allowed_cidrs = [
+  "203.0.113.10/32",
+]
+
+# Regular EKS with a managed node group instead of Auto Mode
+eks_auto_mode = false
+
+# Nodes in public subnets with public IPs; no NAT gateways or VPC endpoints
+public_subnets_only = true
+
+# Managed node group sizing (only used when eks_auto_mode = false)
+# node_instance_types = ["t3.medium"]
+# node_desired_size   = 2
